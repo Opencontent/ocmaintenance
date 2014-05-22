@@ -1,0 +1,9 @@
+<?php
+/*
+
+[UserSettings]
+CronjobUser=
+CronjobUserP=
+
+*/
+?>
