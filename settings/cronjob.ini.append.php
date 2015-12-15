@@ -28,4 +28,7 @@ Scripts[]=truncate_session.php
 [CronjobPart-check_consistency]
 Scripts[]=check_consistency.php
 
+[CronjobPart-trashpurge]
+Scripts[]=trashpurge.php
+
 */ ?>
