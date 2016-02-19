@@ -2,7 +2,6 @@
 
 $cli = eZCLI::instance();
 $cli->setUseStyles(true);
-$cli->setIsQuiet($isQuiet);
 $cli->output($cli->stylize('cyan', 'Leggo classi e attributi con le date di riferimento... '), false);
 
 $user_ini = eZINI::instance('ocmaintenance.ini');
@@ -15,6 +14,7 @@ if ($user) {
 } else {
     throw new InvalidArgumentException("Non esiste un utente con nome utente $CronjobUser");
 }
+
 
 //include_once( "lib/ezutils/classes/ezini.php" );
 $ini = eZINI::instance('openpa.ini');

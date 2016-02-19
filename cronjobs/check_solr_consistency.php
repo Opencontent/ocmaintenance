@@ -1,7 +1,20 @@
 <?php
 
-$user = eZUser::fetchByName( 'admin' );
-eZUser::setCurrentlyLoggedInUser( $user, $user->attribute( 'contentobject_id' ) );
+$cli = eZCLI::instance();
+
+$user_ini = eZINI::instance( 'ocmaintenance.ini' );
+$CronjobUser = $user_ini->variable( 'UserSettings', 'CronjobUser' );
+/** @var eZUser $user */
+$user = eZUser::fetchByName( $CronjobUser );
+if ( $user )
+{
+    eZUser::setCurrentlyLoggedInUser( $user, $user->attribute( 'contentobject_id' ) );
+    $cli->output( "Eseguo lo script da utente {$user->attribute( 'contentobject' )->attribute( 'name' )}" );
+}
+else
+{
+    throw new InvalidArgumentException( "Non esiste un utente con nome utente $CronjobUser" );
+}
 
 $excludeClasses = eZINI::instance( 'ezfind.ini' )->variable( 'IndexExclude', 'ClassIdentifierList' );
 $classes = eZContentClass::fetchAllClasses( false );
