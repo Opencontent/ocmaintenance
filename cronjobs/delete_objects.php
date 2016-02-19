@@ -60,7 +60,7 @@ function deleteObject( $objectId )
 eZExtension::activateExtensions();
 
 //include_once( "lib/ezutils/classes/ezini.php" );
-$ini = eZINI::instance( 'content.ini' );
+$ini = eZINI::instance( 'openpa.ini' );
 $unpublishClasses = $ini->variable( 'UnpublishSettings','ClassList' );
 
 $rootNodeIDList = $ini->variable( 'UnpublishSettings','RootNodeList' );

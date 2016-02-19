@@ -2,8 +2,8 @@
 /*
 
 [UserSettings]
-CronjobUser=
-CronjobUserP=
+CronjobUser=admin
+CronjobUserP=giacomo
 
 */
 ?>

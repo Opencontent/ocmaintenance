@@ -39,6 +39,7 @@ eZExtension::activateExtensions();
 
 $cli = eZCLI::instance();
 $cli->setUseStyles( true );
+$cli->setIsQuiet( $isQuiet );
 $cli->output( $cli->stylize( 'cyan', 'Leggo classi e attributi con le date di riferimento... ' ), false );
 $user_ini = eZINI::instance( 'ocmaintenance.ini' );
 $CronjobUser = $user_ini->variable( 'UserSettings', 'CronjobUser' );

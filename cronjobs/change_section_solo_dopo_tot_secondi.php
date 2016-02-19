@@ -39,6 +39,7 @@ eZExtension::activateExtensions();
 
 $cli = eZCLI::instance();
 $cli->setUseStyles( true );
+$cli->setIsQuiet( $isQuiet );
 $cli->output( $cli->stylize( 'cyan', 'Leggo classi e attributi con le date di riferimento... ' ), false );
 $user_ini = eZINI::instance( 'ocmaintenance.ini' );
 $CronjobUser = $user_ini->variable( 'UserSettings', 'CronjobUser' );
@@ -52,7 +53,7 @@ $cli->output( $cli->stylize( 'red', "Si sta eseguendo l'agente con l'utente ".$l
 
 
 // lettura dei file INI
-$ini = eZINI::instance( 'content.ini' );
+$ini = eZINI::instance( 'openpa.ini' );
 $Classes = $ini->variable( 'ChangeSection','ClassList' );
 $rootNodeIDList = $ini->variable( 'ChangeSection','RootNodeList' );
 $DataTime =  $ini->variable( 'ChangeSection','DataTime' );
@@ -86,17 +87,19 @@ foreach( $rootNodeIDList as $class => $nodeID )
 	$date = $dateAttribute->content();
         $articleRetractDate = $date->attribute( 'timestamp' );
 
-	if ($articleRetractDate>0) {
-        	$articleRetractDate = $date->attribute( 'timestamp' );
-	} else {
+	//if ($articleRetractDate>0) {
+        //	$articleRetractDate = $date->attribute( 'timestamp' );
+	//} else {
+
 		$articleRetractDate = $articleNode->ContentObject->Published + $ScadeDopoTotSecondi;
-	}
+
+	//}
 
         if ( is_null( $dateAttribute ) ) 
 		continue;
 
-	$cli->output( $cli->stylize( 'cyan', "Leggo l'oggetto ".$articleNode->attribute( 'id' ) . ": " . 
-						$articleNode->attribute('name'). "\n" ), false );
+	$cli->output( $cli->stylize( 'blue', "Leggo l'oggetto ".$articleNode->attribute( 'node_id' ) . ": " . 
+						$articleNode->attribute('name'). " con data = ".$articleRetractDate . " vs data = ".$currrentDate.  "\n" ), false );
         if ( $articleRetractDate > 0  && $articleRetractDate < $currrentDate )
         {
             // Clean up content cache
@@ -106,21 +109,21 @@ foreach( $rootNodeIDList as $class => $nodeID )
             //$article->removeThis( $articleNode->attribute( 'node_id' ) );
 	    //cambia sezione
 	    //eZContentObjectTreeNode::assignSectionToSubTree( $articleNode->NodeID, $SectionIDs[$class] );
-        if ( eZOperationHandler::operationIsAvailable( 'content_updatesection' ) )
-        {
-            $operationResult = eZOperationHandler::execute( 'content',
-                                                            'updatesection',
-                                                            array( 'node_id'             => $articleNode->NodeID,
-                                                                   'selected_section_id' => $SectionIDs[$class] ),
-                                                            null,
-                                                            true );
+        	if ( eZOperationHandler::operationIsAvailable( 'content_updatesection' ) )
+        	{
+            	$operationResult = eZOperationHandler::execute( 'content',
+                	                                            'updatesection',
+                        	                                    array( 'node_id'             => $articleNode->NodeID,
+                                	                                   'selected_section_id' => $SectionIDs[$class] ),
+                                        	                    null,
+                                                	            true );
         
-        }
-        else
-        {
-            eZContentOperationCollection::updateSection( $articleNode->NodeID, $SectionIDs[$class] );
-        }
-	    $cli->output( $cli->stylize( 'cyan', "...Modificata sezione a ".$articleNode->attribute( 'id' ) . ": " . 
+        	}
+        	else
+        	{
+            	eZContentOperationCollection::updateSection( $articleNode->NodeID, $SectionIDs[$class] );
+        	}
+	    $cli->output( $cli->stylize( 'cyan', "...Modificata sezione a ".$articleNode->attribute( 'node_id' ) . ": " . 
 						$articleNode->attribute('name'). "\n" ), false );
         }
   	

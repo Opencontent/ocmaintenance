@@ -46,6 +46,7 @@ eZExtension::activateExtensions();
 
 $cli = eZCLI::instance();
 $cli->setUseStyles( true );
+$cli->setIsQuiet( $isQuiet );
 $cli->output( $cli->stylize( 'cyan', 'Leggo classi e attributi con le date di riferimento... ' ), false );
 $user_ini = eZINI::instance( 'ocmaintenance.ini' );
 $CronjobUser = $user_ini->variable( 'UserSettings', 'CronjobUser' );
@@ -60,7 +61,7 @@ $cli->output( $cli->stylize( 'red', "Si sta eseguendo l'agente con l'utente ".$l
 
 
 //include_once( "lib/ezutils/classes/ezini.php" );
-$ini = eZINI::instance( 'content.ini' );
+$ini = eZINI::instance( 'openpa.ini' );
 $Classes = $ini->variable( 'ChangeSection','ClassList' );
 
 $rootNodeIDList = $ini->variable( 'ChangeSection','RootNodeList' );

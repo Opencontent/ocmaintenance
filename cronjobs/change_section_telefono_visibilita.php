@@ -60,7 +60,7 @@ $cli->output( $cli->stylize( 'red', "Si sta eseguendo l'agente con l'utente ".$l
 
 
 //include_once( "lib/ezutils/classes/ezini.php" );
-$ini = eZINI::instance( 'content.ini' );
+$ini = eZINI::instance( 'openpa.ini' );
 $Classes = $ini->variable( 'ChangeSection','ClassList' );
 
 $rootNodeIDList = $ini->variable( 'ChangeSection','RootNodeList' );
