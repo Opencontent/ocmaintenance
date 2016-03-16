@@ -19,7 +19,7 @@ Scripts[]=change_section_telefono_tipotelefono.php
 Scripts[]=check_consistency.php
 
 [CronjobPart-oscura_atti]
-Scripts[]=oscura_atti.phpì
+Scripts[]=oscura_atti.php
 
 [CronjobPart-check_solr_consistency]
 Scripts[]=check_solr_consistency.php
