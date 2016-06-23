@@ -215,6 +215,7 @@ class OcCheckConsistency
 
     public function checkUserWithoutLogin($doFix = false)
     {
+        return 0; //@todo
         if ($this->output) {
             $status = new ezcConsoleStatusbar($this->output, $this->outputOptions);
         }
