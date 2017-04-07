@@ -269,17 +269,19 @@ class OcCheckConsistency
 
                     $db->begin();
                     $object = eZContentObject::fetch( $objectID );
-                    $removeFromPendingActions = !$object instanceof eZContentObject;
+                    $removeFromPendingActions = !($object instanceof eZContentObject);
                     if ( $removeFromPendingActions )
                     {
-                        $status->add(0);
+                        if (isset($status)) $status->add(0);
                         if ($doFix) {
                             $db->query("DELETE FROM ezpending_actions WHERE action = 'index_object' AND param = '$objectID'");
+                        }else{
+                            ++$offset;
                         }
                     }
                     else
                     {
-                        $status->add(1);
+                        if (isset($status)) $status->add(1);
                         ++$offset;
                     }
 
@@ -291,6 +293,11 @@ class OcCheckConsistency
             {
                 break;
             }
+        }
+
+        if ($this->output && isset($status)){
+            $this->output->outputLine();
+            $this->output->outputLine( 'Successes: ' . $status->getSuccessCount() . ', Failures: ' . $status->getFailureCount() );
         }
 
         return $count;

@@ -19,6 +19,7 @@ if (!$isQuiet) $tool->verbose();
 $cli->output();
 $cli->output("Check pending action");
 $cli->output();
+
 $count = $tool->checkPendingActions();
 $cli->output("Affected objects: $count");
 if ($doUpdate && $count > 0) {
