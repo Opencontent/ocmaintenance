@@ -24,5 +24,8 @@ Scripts[]=oscura_atti.php
 [CronjobPart-check_solr_consistency]
 Scripts[]=check_solr_consistency.php
 
+[CronjobPart-check_pendingactions_consistency]
+Scripts[]=check_pendingactions_consistency.php
+
 
 */ ?>

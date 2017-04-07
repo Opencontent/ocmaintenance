@@ -215,28 +215,85 @@ class OcCheckConsistency
 
     public function checkUserWithoutLogin($doFix = false)
     {
-        return 0; //@todo
         if ($this->output) {
             $status = new ezcConsoleStatusbar($this->output, $this->outputOptions);
         }
         $resources = $this->db->arrayQuery("SELECT * FROM ezuser WHERE login = ''");
         if ($doFix) {
-            foreach ($resources as $item) {
 
-                $this->log('Delete ezuser.contentobject_id ' . $item['id']);
-                $this->db->begin();
+            return 0; //@todo
 
-                $this->db->query(
-                    "UPDATE ezcontentobject_attribute SET data_text='' WHERE contentobject_id = " . intval($item['contentobject_id']) . " AND data_type_string = 'ezuser'"
-                );
-                $this->db->query(
-                    "DELETE FROM ezuser WHERE contentobject_id = " . intval($item['contentobject_id'])
-                );
-                $this->db->commit();
-            }
+//            foreach ($resources as $item) {
+//
+//                $this->log('Delete ezuser.contentobject_id ' . $item['id']);
+//                $this->db->begin();
+//
+//                $this->db->query(
+//                    "UPDATE ezcontentobject_attribute SET data_text='' WHERE contentobject_id = " . intval($item['contentobject_id']) . " AND data_type_string = 'ezuser'"
+//                );
+//                $this->db->query(
+//                    "DELETE FROM ezuser WHERE contentobject_id = " . intval($item['contentobject_id'])
+//                );
+//                $this->db->commit();
+//            }
         }
 
         return count($resources);
+    }
+
+    public function checkPendingActions($doFix = false)
+    {
+        if ($this->output) {
+            $status = new ezcConsoleStatusbar($this->output, $this->outputOptions);
+        }
+
+        $count = 0;
+
+        $db = eZDB::instance();
+
+        $offset = 0;
+        $limit = 50;
+
+        while( true )
+        {
+            $entries = $db->arrayQuery(
+                "SELECT param FROM ezpending_actions WHERE action = 'index_object' GROUP BY param ORDER BY min(created)",
+                array( 'limit' => $limit, 'offset' => $offset )
+            );
+
+            if ( is_array( $entries ) && count( $entries ) != 0 )
+            {
+                foreach ( $entries as $entry )
+                {
+                    $objectID = (int)$entry['param'];
+
+                    $db->begin();
+                    $object = eZContentObject::fetch( $objectID );
+                    $removeFromPendingActions = !$object instanceof eZContentObject;
+                    if ( $removeFromPendingActions )
+                    {
+                        $status->add(0);
+                        if ($doFix) {
+                            $db->query("DELETE FROM ezpending_actions WHERE action = 'index_object' AND param = '$objectID'");
+                        }
+                    }
+                    else
+                    {
+                        $status->add(1);
+                        ++$offset;
+                    }
+
+                    $db->commit();
+                    $count++;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return $count;
     }
 
 }

@@ -1,7 +1,7 @@
 <?php
 
-/** @var $cli */
-/** @var $script */
+/** @var eZCLI $cli */
+/** @var eZScript $script */
 
 // $doUpdate, true or false. Set to false for at dry test-run
 $doUpdate = true;
@@ -53,6 +53,16 @@ $cli->output("Affected objects: $count");
 if ($doUpdate && $count > 0) {
     $cli->warning("Fixing... please wait");
     $tool->checkUserWithoutLogin(true);
+}
+
+$cli->output();
+$cli->output("Check pending action");
+$cli->output();
+$count = $tool->checkPendingActions();
+$cli->output("Affected objects: $count");
+if ($doUpdate && $count > 0) {
+    $cli->warning("Fixing... please wait");
+    $tool->checkPendingActions(true);
 }
 
 $script->shutdown();
