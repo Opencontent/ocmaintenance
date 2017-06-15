@@ -79,11 +79,11 @@ class OcCheckConsistency
                     }
                     $this->db->commit();
                 } else {
-                    if (isset($status)) $status->add(0);
+                    if (isset($status)) $status->add(false);
                 }
                 $i++;
             }
-            if (isset($status)) $status->add(1);
+            if (isset($status)) $status->add(true);
         }
 
         if ($this->output){
@@ -115,10 +115,10 @@ class OcCheckConsistency
             );
 
             if (empty( $hasNode ) && empty( $hasTrashNode )) {
-                if (isset($status)) $status->add(0);
+                if (isset($status)) $status->add(false);
                 $count++;
             } else {
-                if (isset($status)) $status->add(1);
+                if (isset($status)) $status->add(true);
             }
         }
 
@@ -198,9 +198,9 @@ class OcCheckConsistency
                         );
                         $this->db->commit();
                     }
-                    if (isset($status)) $status->add(0);
+                    if (isset($status)) $status->add(false);
                 } else {
-                    if (isset($status)) $status->add(1);
+                    if (isset($status)) $status->add(true);
                 }
                 $i++;
             }
@@ -272,7 +272,7 @@ class OcCheckConsistency
                     $removeFromPendingActions = !($object instanceof eZContentObject);
                     if ( $removeFromPendingActions )
                     {
-                        if (isset($status)) $status->add(0);
+                        if (isset($status)) $status->add(false);
                         if ($doFix) {
                             $db->query("DELETE FROM ezpending_actions WHERE action = 'index_object' AND param = '$objectID'");
                         }else{
@@ -281,7 +281,7 @@ class OcCheckConsistency
                     }
                     else
                     {
-                        if (isset($status)) $status->add(1);
+                        if (isset($status)) $status->add(true);
                         ++$offset;
                     }
 
