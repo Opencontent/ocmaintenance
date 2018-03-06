@@ -33,7 +33,8 @@ $today = time();
 foreach ($Classes as $class) {
     $rootNode = eZContentObjectTreeNode::fetch($rootNodeIDList[$class]);
     $PublishedSinceHours = ( $PublishedSinceHours_array[$class] ) * 3600;
-    $NodeArray = $rootNode->subTree(array(
+
+    $params = array(
         'ClassFilterType' => 'include',
         'ClassFilterArray' => array($class),
         'AttributeFilter' => array(
@@ -41,55 +42,67 @@ foreach ($Classes as $class) {
             array('published', '<=', $today),
             array('published', '>', $today - $PublishedSinceHours)
         )
-    ));
+    );
 
-    $PublishedDataTime = $PublishedDataTime_array[$class];
+    $NodeCount = $rootNode->subTreeCount($params);
 
-    $cli->warning($class . ' ' . $PublishedDataTime . ' -> ' . count($NodeArray));
+    $length = 50;
 
-    $total = count($NodeArray);
-    $i = 1;
-    foreach ($NodeArray as $Node) {
-        $contentObject = eZContentObject::fetch((int)$Node->ContentObjectID);
-        $current = $contentObject->attribute('current');
-        if ($current instanceof eZContentObjectVersion) {
-            $creator_id = $current->attribute('creator_id');
+    $params['Limit'] = $length;
+    $params['Offset'] = 0;
+
+    do {
+        $NodeArray = $rootNode->subTree($params);
+
+        $PublishedDataTime = $PublishedDataTime_array[$class];
+
+        if ($params['Offset'] == 0) {
+            $cli->warning($class . ' ' . $PublishedDataTime . ' -> ' . $NodeCount);
         }
 
-        $dataMap = $contentObject->attribute('data_map');
-        if ($contentObject->attribute('can_edit')) {
-            if (array_key_exists($PublishedDataTime, $dataMap)
-                && $dataMap[$PublishedDataTime]->attribute('has_content')
-                && $dataMap[$PublishedDataTime]->attribute('data_int') != $contentObject->attribute('published')
-            ) {
-                $db->begin();
-                $attribute = $dataMap[$PublishedDataTime];
-                $classAttributeID = $attribute->attribute('contentclassattribute_id');
-                $dataType = $attribute->attribute('data_type_string');
-                switch ($dataType) {
-                    case 'ezdate':
-                    case 'eztime': {
-                        $contentObject->setAttribute('published', (int)$attribute->attribute('data_int'));
-                    }
-                        break;
-                }
-                $attribute->store();
-
-                if ($creator_id) {
-                    $contentObject->setAttribute('owner_id', $creator_id);
-                }
-                $contentObject->store();
-                $db->commit();
-
-                $cli->output($i . '/' . $total . " Cambio data $class #" . $contentObject->attribute('id') . " nodo #" . $contentObject->attribute('main_node_id'));
-
-                $searchEngine = eZSearch::getEngine();
-                $searchEngine->addObject($contentObject, true);
-                eZContentCacheManager::clearContentCacheIfNeeded($contentObject->attribute('id'));
-                eZContentObject::clearCache($contentObject->attribute('id'));
-                $contentObject->resetDataMap();
+        foreach ($NodeArray as $Node) {
+            $contentObject = eZContentObject::fetch((int)$Node->ContentObjectID);
+            $current = $contentObject->attribute('current');
+            if ($current instanceof eZContentObjectVersion) {
+                $creator_id = $current->attribute('creator_id');
             }
+
+            $dataMap = $contentObject->attribute('data_map');
+            if ($contentObject->attribute('can_edit')) {
+                if (array_key_exists($PublishedDataTime, $dataMap)
+                    && $dataMap[$PublishedDataTime]->attribute('has_content')
+                    && $dataMap[$PublishedDataTime]->attribute('data_int') != $contentObject->attribute('published')
+                ) {
+                    $db->begin();
+                    $attribute = $dataMap[$PublishedDataTime];
+                    $classAttributeID = $attribute->attribute('contentclassattribute_id');
+                    $dataType = $attribute->attribute('data_type_string');
+                    switch ($dataType) {
+                        case 'ezdate':
+                        case 'eztime':
+                            {
+                                $contentObject->setAttribute('published', (int)$attribute->attribute('data_int'));
+                            }
+                            break;
+                    }
+                    $attribute->store();
+
+                    if ($creator_id) {
+                        $contentObject->setAttribute('owner_id', $creator_id);
+                    }
+                    $contentObject->store();
+                    $db->commit();
+
+                    $cli->output("Cambio data $class #" . $contentObject->attribute('id') . " nodo #" . $contentObject->attribute('main_node_id'));
+
+                    $searchEngine = eZSearch::getEngine();
+                    $searchEngine->addObject($contentObject, true);
+                    eZContentCacheManager::clearContentCacheIfNeeded($contentObject->attribute('id'));
+                }
+            }
+            eZContentObject::clearCache($contentObject->attribute('id'));
+            $contentObject->resetDataMap();
         }
-        $i++;
-    }
+        $params['Offset'] += $length;
+    } while (count($NodeArray) == $length);
 }
