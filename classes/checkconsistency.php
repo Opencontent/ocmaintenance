@@ -96,7 +96,7 @@ class OcCheckConsistency
 
     public function checkNodesConsistency($doFix = false)
     {
-        $objects = $this->db->arrayQuery("SELECT id, name FROM ezcontentobject");
+        $objects = $this->db->arrayQuery("SELECT id, name, status FROM ezcontentobject WHERE status = " . eZContentObject::STATUS_PUBLISHED);
 
         $count = 0;
 
